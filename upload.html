@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>데이터 업로드 - MATHKONG Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-shadow {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .drop-zone {
+            border: 2px dashed #cbd5e0;
+            transition: all 0.3s ease;
+        }
+        .drop-zone.dragover {
+            border-color: #667eea;
+            background-color: #f7fafc;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <div class="gradient-bg text-white py-6">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold">데이터 업로드 센터</h1>
+                    <p class="text-lg opacity-90 mt-1">CSV 파일을 업로드하여 실시간 분석을 시작하세요</p>
+                </div>
+                <div class="flex gap-4">
+                    <a href="index.html" class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition">
+                        대시보드
+                    </a>
+                    <a href="strategy.html" class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition">
+                        전략 회의
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Section -->
+    <div class="container mx-auto px-4 mt-8">
+        <!-- File Upload Area -->
+        <div class="bg-white rounded-xl p-8 card-shadow mb-8">
+            <h2 class="text-xl font-semibold mb-6">📤 파일 업로드</h2>
+            
+            <div id="dropZone" class="drop-zone rounded-lg p-12 text-center cursor-pointer">
+                <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <p class="text-lg font-medium text-gray-700 mb-2">CSV 파일을 드래그하거나 클릭하여 업로드</p>
+                <p class="text-sm text-gray-500">지원 형식: .csv (최대 10MB)</p>
+                <input type="file" id="fileInput" accept=".csv" class="hidden">
+            </div>
+
+            <div id="fileInfo" class="mt-4 hidden">
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="font-medium text-blue-900" id="fileName"></p>
+                            <p class="text-sm text-blue-700" id="fileSize"></p>
+                        </div>
+                        <button id="removeFile" class="text-red-600 hover:text-red-800">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Preview -->
+        <div id="dataPreview" class="bg-white rounded-xl p-8 card-shadow mb-8 hidden">
+            <h2 class="text-xl font-semibold mb-6">📊 데이터 미리보기</h2>
+            
+            <div class="mb-4">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <p class="text-sm text-gray-500">총 행 수</p>
+                        <p class="text-2xl font-bold" id="totalRows">-</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <p class="text-sm text-gray-500">총 열 수</p>
+                        <p class="text-2xl font-bold" id="totalCols">-</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <p class="text-sm text-gray-500">시작 날짜</p>
+                        <p class="text-lg font-semibold" id="startDate">-</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <p class="text-sm text-gray-500">종료 날짜</p>
+                        <p class="text-lg font-semibold" id="endDate">-</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full" id="previewTable">
+                    <thead>
+                        <tr class="border-b" id="tableHeader"></tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+
+            <div class="mt-6 flex justify-end gap-4">
+                <button id="cancelAnalysis" class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                    취소
+                </button>
+                <button id="startAnalysis" class="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+                    분석 시작 →
+                </button>
+            </div>
+        </div>
+
+        <!-- Analysis Results -->
+        <div id="analysisResults" class="hidden">
+            <!-- Quick Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <h3 class="text-gray-500 text-sm mb-1">총 지출</h3>
+                    <p class="text-2xl font-bold" id="totalSpend">-</p>
+                </div>
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <h3 class="text-gray-500 text-sm mb-1">총 전환</h3>
+                    <p class="text-2xl font-bold" id="totalConversions">-</p>
+                </div>
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <h3 class="text-gray-500 text-sm mb-1">평균 CPA</h3>
+                    <p class="text-2xl font-bold" id="avgCPA">-</p>
+                </div>
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <h3 class="text-gray-500 text-sm mb-1">평균 CVR</h3>
+                    <p class="text-2xl font-bold" id="avgCVR">-</p>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <h3 class="text-lg font-semibold mb-4">캠페인별 성과</h3>
+                    <div style="position: relative; height: 300px;">
+                        <canvas id="campaignChart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <h3 class="text-lg font-semibold mb-4">일별 추이</h3>
+                    <div style="position: relative; height: 300px;">
+                        <canvas id="dailyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="bg-white rounded-xl p-6 card-shadow text-center">
+                <h3 class="text-lg font-semibold mb-4">다음 단계</h3>
+                <div class="flex justify-center gap-4">
+                    <button id="newUpload" class="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
+                        새 파일 업로드
+                    </button>
+                    <button id="saveAnalysis" class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                        분석 결과 저장
+                    </button>
+                    <a href="strategy.html" class="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 inline-block">
+                        AI 전략 회의 시작
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="upload.js"></script>
+</body>
+</html>
