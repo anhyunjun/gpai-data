@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MATHKONG 마케팅 대시보드 - 2025년 3월</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-shadow {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <div class="gradient-bg text-white py-8">
+        <div class="container mx-auto px-4">
+            <h1 class="text-4xl font-bold mb-2">MATHKONG 마케팅 대시보드</h1>
+            <p class="text-lg opacity-90">2025년 3월 Meta Ads 캠페인 성과 분석</p>
+            <div class="mt-4 flex gap-4 text-sm">
+                <span class="bg-white/20 px-3 py-1 rounded-full">분석 기간: 2025.03.01 - 03.24</span>
+                <span class="bg-white/20 px-3 py-1 rounded-full">총 캠페인: 7개</span>
+                <span class="bg-white/20 px-3 py-1 rounded-full">플랫폼: Meta Ads</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main KPIs -->
+    <div class="container mx-auto px-4 -mt-8">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="bg-white rounded-xl p-6 card-shadow">
+                <h3 class="text-gray-500 text-sm mb-1">총 투자액</h3>
+                <p class="text-3xl font-bold text-gray-800">₩2.1M</p>
+                <p class="text-sm text-gray-500 mt-1">2,099,603원</p>
+            </div>
+            <div class="bg-white rounded-xl p-6 card-shadow">
+                <h3 class="text-gray-500 text-sm mb-1">총 가입자수</h3>
+                <p class="text-3xl font-bold text-green-600">207명</p>
+                <p class="text-sm text-green-500 mt-1">목표 대비 +15%</p>
+            </div>
+            <div class="bg-white rounded-xl p-6 card-shadow">
+                <h3 class="text-gray-500 text-sm mb-1">평균 CPA</h3>
+                <p class="text-3xl font-bold text-blue-600">₩10,143</p>
+                <p class="text-sm text-blue-500 mt-1">업계 평균 대비 -15.5%</p>
+            </div>
+            <div class="bg-white rounded-xl p-6 card-shadow">
+                <h3 class="text-gray-500 text-sm mb-1">평균 CVR</h3>
+                <p class="text-3xl font-bold text-purple-600">13.1%</p>
+                <p class="text-sm text-purple-500 mt-1">업계 평균 대비 +31%</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="container mx-auto px-4 mt-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- CPA by Target Chart -->
+            <div class="bg-white rounded-xl p-6 card-shadow">
+                <h3 class="text-lg font-semibold mb-4">타겟별 CPA 성과</h3>
+                <div style="position: relative; height: 300px;">
+                    <canvas id="cpaChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Conversion Share Pie Chart -->
+            <div class="bg-white rounded-xl p-6 card-shadow">
+                <h3 class="text-lg font-semibold mb-4">타겟별 전환 비중</h3>
+                <div style="position: relative; height: 300px;">
+                    <canvas id="conversionChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance Table -->
+    <div class="container mx-auto px-4 mt-8">
+        <div class="bg-white rounded-xl p-6 card-shadow">
+            <h3 class="text-lg font-semibold mb-4">캠페인별 상세 성과</h3>
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead>
+                        <tr class="border-b">
+                            <th class="text-left py-3 px-4">순위</th>
+                            <th class="text-left py-3 px-4">타겟</th>
+                            <th class="text-right py-3 px-4">지출(원)</th>
+                            <th class="text-right py-3 px-4">가입자</th>
+                            <th class="text-right py-3 px-4">CPA(원)</th>
+                            <th class="text-right py-3 px-4">CVR(%)</th>
+                            <th class="text-center py-3 px-4">상태</th>
+                        </tr>
+                    </thead>
+                    <tbody id="performanceTable">
+                        <!-- Table rows will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Phase 6 Button -->
+    <div class="container mx-auto px-4 mt-8">
+        <div class="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl p-8 text-white text-center">
+            <h3 class="text-2xl font-bold mb-4">다음 단계: AI 전략 회의</h3>
+            <p class="mb-6 opacity-90">Claude & Gemini 2.5 Pro와 함께 다음 주 액션 플랜을 수립하세요</p>
+            <a href="strategy.html" class="inline-block bg-white text-purple-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition transform hover:scale-105">
+                Phase 6 전략 회의 시작 →
+            </a>
+        </div>
+    </div>
+
+    <!-- Recommendations -->
+    <div class="container mx-auto px-4 mt-8 mb-12">
+        <div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-8">
+            <h3 class="text-xl font-semibold mb-6">🚀 즉시 실행 권장사항</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-lg p-4">
+                    <div class="text-green-600 font-semibold mb-2">✅ 예산 증액 (30%)</div>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>• 칸아카데미: +89,979원</li>
+                        <li>• 쿠몬: +89,981원</li>
+                        <li class="font-semibold text-green-600">예상: +23명 추가 가입</li>
+                    </ul>
+                </div>
+                <div class="bg-white rounded-lg p-4">
+                    <div class="text-red-600 font-semibold mb-2">⚠️ 예산 감액 (20%)</div>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>• GPA: -59,965원</li>
+                        <li>• IB: -59,998원</li>
+                        <li class="font-semibold text-red-600">절약: 119,963원</li>
+                    </ul>
+                </div>
+                <div class="bg-white rounded-lg p-4">
+                    <div class="text-blue-600 font-semibold mb-2">📈 예상 개선 효과</div>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>• CPA: 10,143원 → 8,856원</li>
+                        <li>• 월 가입자: 207명 → 267명</li>
+                        <li class="font-semibold text-blue-600">ROI: +29% 개선</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>
