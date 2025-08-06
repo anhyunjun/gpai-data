@@ -3,161 +3,637 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MATHKONG 마케팅 대시보드 - 2025년 3월</title>
+    <title>MATHKONG 마케팅 대시보드</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-        .gradient-bg {
+        .metric-card {
+            transition: all 0.3s ease;
+        }
+        .metric-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+        }
+        .gradient-purple {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
-        .card-shadow {
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        .gradient-green {
+            background: linear-gradient(135deg, #0ba360 0%, #3cba92 100%);
+        }
+        .performance-badge {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
         }
     </style>
 </head>
 <body class="bg-gray-50">
-    <!-- Header -->
-    <div class="gradient-bg text-white py-8">
-        <div class="container mx-auto px-4">
-            <h1 class="text-4xl font-bold mb-2">MATHKONG 마케팅 대시보드</h1>
-            <p class="text-lg opacity-90">2025년 3월 Meta Ads 캠페인 성과 분석</p>
-            <div class="mt-4 flex gap-4 text-sm">
-                <span class="bg-white/20 px-3 py-1 rounded-full">분석 기간: 2025.03.01 - 03.24</span>
-                <span class="bg-white/20 px-3 py-1 rounded-full">총 캠페인: 7개</span>
-                <span class="bg-white/20 px-3 py-1 rounded-full">플랫폼: Meta Ads</span>
-            </div>
-        </div>
+    <!-- Phase 6 Strategy Banner -->
+    <div class="gradient-purple text-white py-16 px-6 text-center mb-8">
+        <h1 class="text-4xl font-bold mb-4">다음 단계: AI 전략 회의</h1>
+        <p class="text-xl mb-6">Claude & Gemini 2.5 Pro와 함께 다음 주 액션 플랜을 수립하세요</p>
+        <button class="bg-white text-purple-700 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+            Phase 6 전략 회의 시작 →
+        </button>
     </div>
 
-    <!-- Main KPIs -->
-    <div class="container mx-auto px-4 -mt-8">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div class="bg-white rounded-xl p-6 card-shadow">
-                <h3 class="text-gray-500 text-sm mb-1">총 투자액</h3>
-                <p class="text-3xl font-bold text-gray-800">₩2.1M</p>
-                <p class="text-sm text-gray-500 mt-1">2,099,603원</p>
-            </div>
-            <div class="bg-white rounded-xl p-6 card-shadow">
-                <h3 class="text-gray-500 text-sm mb-1">총 가입자수</h3>
-                <p class="text-3xl font-bold text-green-600">207명</p>
-                <p class="text-sm text-green-500 mt-1">목표 대비 +15%</p>
-            </div>
-            <div class="bg-white rounded-xl p-6 card-shadow">
-                <h3 class="text-gray-500 text-sm mb-1">평균 CPA</h3>
-                <p class="text-3xl font-bold text-blue-600">₩10,143</p>
-                <p class="text-sm text-blue-500 mt-1">업계 평균 대비 -15.5%</p>
-            </div>
-            <div class="bg-white rounded-xl p-6 card-shadow">
-                <h3 class="text-gray-500 text-sm mb-1">평균 CVR</h3>
-                <p class="text-3xl font-bold text-purple-600">13.1%</p>
-                <p class="text-sm text-purple-500 mt-1">업계 평균 대비 +31%</p>
-            </div>
-        </div>
+    <!-- Data Upload Section -->
+    <div class="gradient-green text-white py-12 px-6 text-center mb-8">
+        <h2 class="text-2xl font-bold mb-4">새로운 데이터 분석하기</h2>
+        <p class="text-lg mb-6">CSV 파일을 업로드하여 실시간으로 마케팅 성과를 분석하세요</p>
+        <label for="file-upload" class="cursor-pointer inline-flex items-center px-6 py-3 bg-white text-green-700 font-medium rounded-lg hover:bg-gray-100 transition-colors">
+            <i data-lucide="cloud-upload" class="w-5 h-5 mr-2"></i>
+            데이터 업로드
+        </label>
+        <input id="file-upload" type="file" accept=".csv,.xlsx,.xls" class="hidden" onchange="handleFileUpload(event)">
     </div>
 
-    <!-- Charts Section -->
-    <div class="container mx-auto px-4 mt-8">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- CPA by Target Chart -->
-            <div class="bg-white rounded-xl p-6 card-shadow">
-                <h3 class="text-lg font-semibold mb-4">타겟별 CPA 성과</h3>
-                <div style="position: relative; height: 300px;">
-                    <canvas id="cpaChart"></canvas>
+    <div class="container mx-auto px-6">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">MATHKONG 마케팅 대시보드</h1>
+            <div class="flex items-center gap-4 mt-2 text-sm text-gray-600">
+                <span>분석 기간: <span id="date-range">-</span></span>
+                <span>총 캠페인: <span id="campaign-count">0개</span></span>
+                <span>플랫폼: <span id="platform">-</span></span>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="flex gap-3 mb-6">
+            <button id="clear-btn" onclick="clearData()" class="hidden inline-flex items-center px-4 py-2 bg-red-50 text-red-700 font-medium rounded-lg hover:bg-red-100 transition-colors">
+                <i data-lucide="trash-2" class="w-4 h-4 mr-2"></i>
+                데이터 삭제
+            </button>
+            <button onclick="exportReport()" class="hidden inline-flex items-center px-4 py-2 bg-blue-50 text-blue-700 font-medium rounded-lg hover:bg-blue-100 transition-colors" id="export-btn">
+                <i data-lucide="download" class="w-4 h-4 mr-2"></i>
+                리포트 다운로드
+            </button>
+        </div>
+
+        <!-- Empty State -->
+        <div id="empty-state" class="bg-white rounded-xl shadow-sm border border-gray-200 p-16 text-center">
+            <i data-lucide="bar-chart-2" class="w-16 h-16 mx-auto text-gray-300 mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">분석할 데이터가 없습니다</h3>
+            <p class="text-gray-600">상단의 데이터 업로드 버튼을 클릭하여 시작하세요</p>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div id="dashboard" class="hidden space-y-8">
+            <!-- Key Metrics -->
+            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div class="metric-card bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-medium text-gray-600">총 투자액</span>
+                        <div class="p-2 bg-blue-100 rounded-lg">
+                            <i data-lucide="wallet" class="w-4 h-4 text-blue-700"></i>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-bold text-gray-900" id="total-spend">₩0</div>
+                    <p class="text-xs text-gray-500 mt-1" id="spend-date">-</p>
+                </div>
+
+                <div class="metric-card bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-medium text-gray-600">총 가입자수</span>
+                        <div class="p-2 bg-green-100 rounded-lg">
+                            <i data-lucide="users" class="w-4 h-4 text-green-700"></i>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-bold text-gray-900" id="total-conversions">0명</div>
+                    <p class="text-xs mt-1">
+                        목표 대비 <span class="text-green-600 font-semibold" id="conversion-rate">+0%</span>
+                    </p>
+                </div>
+
+                <div class="metric-card bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-medium text-gray-600">평균 CPA</span>
+                        <div class="p-2 bg-purple-100 rounded-lg">
+                            <i data-lucide="trending-down" class="w-4 h-4 text-purple-700"></i>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-bold text-gray-900" id="avg-cpa">₩0</div>
+                    <p class="text-xs mt-1">
+                        업계 평균 대비 <span class="text-purple-600 font-semibold" id="cpa-comparison">-0%</span>
+                    </p>
+                </div>
+
+                <div class="metric-card bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-medium text-gray-600">평균 CVR</span>
+                        <div class="p-2 bg-orange-100 rounded-lg">
+                            <i data-lucide="target" class="w-4 h-4 text-orange-700"></i>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-bold text-gray-900" id="avg-cvr">0%</div>
+                    <p class="text-xs mt-1">
+                        업계 평균 대비 <span class="text-orange-600 font-semibold" id="cvr-comparison">+0%</span>
+                    </p>
                 </div>
             </div>
 
-            <!-- Conversion Share Pie Chart -->
-            <div class="bg-white rounded-xl p-6 card-shadow">
-                <h3 class="text-lg font-semibold mb-4">타겟별 전환 비중</h3>
-                <div style="position: relative; height: 300px;">
-                    <canvas id="conversionChart"></canvas>
+            <!-- AI Recommendations -->
+            <div class="bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl p-6 border border-purple-200">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">🚀 즉시 실행 권장사항</h3>
+                <div id="recommendations" class="grid gap-4 md:grid-cols-3">
+                    <!-- Recommendations will be inserted here -->
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">타겟별 CPA 성과</h3>
+                    <div style="position: relative; height: 300px;">
+                        <canvas id="cpa-chart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">타겟별 전환 비중</h3>
+                    <div style="position: relative; height: 300px;">
+                        <canvas id="pie-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Campaign Performance Table -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+                <div class="p-6 border-b border-gray-100">
+                    <h3 class="text-lg font-semibold text-gray-900">캠페인별 상세 성과</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50 border-b border-gray-100">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">순위</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">타겟</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">지출(원)</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">가입자</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">CPA(원)</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">CVR(%)</th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">상태</th>
+                            </tr>
+                        </thead>
+                        <tbody id="campaign-table-body" class="bg-white divide-y divide-gray-100">
+                            <!-- Table rows will be inserted here -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Performance Table -->
-    <div class="container mx-auto px-4 mt-8">
-        <div class="bg-white rounded-xl p-6 card-shadow">
-            <h3 class="text-lg font-semibold mb-4">캠페인별 상세 성과</h3>
-            <div class="overflow-x-auto">
-                <table class="min-w-full">
-                    <thead>
-                        <tr class="border-b">
-                            <th class="text-left py-3 px-4">순위</th>
-                            <th class="text-left py-3 px-4">타겟</th>
-                            <th class="text-right py-3 px-4">지출(원)</th>
-                            <th class="text-right py-3 px-4">가입자</th>
-                            <th class="text-right py-3 px-4">CPA(원)</th>
-                            <th class="text-right py-3 px-4">CVR(%)</th>
-                            <th class="text-center py-3 px-4">상태</th>
-                        </tr>
-                    </thead>
-                    <tbody id="performanceTable">
-                        <!-- Table rows will be inserted here -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
+    <script>
+        let adData = [];
+        let charts = {};
 
-    <!-- Phase 6 Button -->
-    <div class="container mx-auto px-4 mt-8">
-        <div class="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl p-8 text-white text-center">
-            <h3 class="text-2xl font-bold mb-4">다음 단계: AI 전략 회의</h3>
-            <p class="mb-6 opacity-90">Claude & Gemini 2.5 Pro와 함께 다음 주 액션 플랜을 수립하세요</p>
-            <a href="strategy.html" class="inline-block bg-white text-purple-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition transform hover:scale-105">
-                Phase 6 전략 회의 시작 →
-            </a>
-        </div>
-    </div>
+        // Initialize Lucide icons
+        lucide.createIcons();
 
-    <!-- Upload Button -->
-    <div class="container mx-auto px-4 mt-8">
-        <div class="bg-gradient-to-r from-green-600 to-teal-600 rounded-xl p-6 text-white text-center">
-            <h3 class="text-xl font-bold mb-3">새로운 데이터 분석하기</h3>
-            <p class="mb-4 opacity-90">CSV 파일을 업로드하여 실시간으로 마케팅 성과를 분석하세요</p>
-            <a href="upload.html" class="inline-block bg-white text-green-600 px-6 py-2 rounded-lg font-semibold hover:bg-gray-100 transition">
-                📤 데이터 업로드
-            </a>
-        </div>
-    </div>
+        // Load data from localStorage on page load
+        window.onload = function() {
+            const savedData = localStorage.getItem('adData');
+            if (savedData) {
+                adData = JSON.parse(savedData);
+                if (adData.length > 0) {
+                    showDashboard();
+                }
+            }
+        };
 
-    <!-- Recommendations -->
-    <div class="container mx-auto px-4 mt-8 mb-12">
-        <div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-8">
-            <h3 class="text-xl font-semibold mb-6">🚀 즉시 실행 권장사항</h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-white rounded-lg p-4">
-                    <div class="text-green-600 font-semibold mb-2">✅ 예산 증액 (30%)</div>
-                    <ul class="text-sm text-gray-600 space-y-1">
-                        <li>• 칸아카데미: +89,979원</li>
-                        <li>• 쿠몬: +89,981원</li>
-                        <li class="font-semibold text-green-600">예상: +23명 추가 가입</li>
-                    </ul>
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                try {
+                    let jsonData;
+                    
+                    if (file.type === 'text/csv' || file.name.endsWith('.csv')) {
+                        // CSV 파일 처리
+                        const csvText = e.target.result;
+                        const lines = csvText.split('\n');
+                        const headers = lines[0].split(',').map(h => h.trim().replace(/["\uFEFF]/g, ''));
+                        
+                        jsonData = [];
+                        for (let i = 1; i < lines.length; i++) {
+                            if (lines[i].trim() === '') continue;
+                            
+                            const values = [];
+                            let current = '';
+                            let inQuotes = false;
+                            
+                            for (let char of lines[i]) {
+                                if (char === '"') {
+                                    inQuotes = !inQuotes;
+                                } else if (char === ',' && !inQuotes) {
+                                    values.push(current.trim());
+                                    current = '';
+                                } else {
+                                    current += char;
+                                }
+                            }
+                            values.push(current.trim());
+                            
+                            const row = {};
+                            headers.forEach((header, index) => {
+                                row[header] = values[index] || '';
+                            });
+                            jsonData.push(row);
+                        }
+                    } else {
+                        // Excel 파일 처리
+                        const data = e.target.result;
+                        const workbook = XLSX.read(data, { type: 'binary' });
+                        const sheetName = workbook.SheetNames[0];
+                        const worksheet = workbook.Sheets[sheetName];
+                        jsonData = XLSX.utils.sheet_to_json(worksheet);
+                    }
+                    
+                    // Process and validate data - Meta Ads 형식 지원
+                    adData = jsonData.map((row, index) => {
+                        // Meta Ads 형식 체크
+                        if ('노출' in row && '클릭(전체)' in row) {
+                            const impressions = Number(String(row['노출']).replace(/,/g, '')) || 0;
+                            const clicks = Number(String(row['클릭(전체)']).replace(/,/g, '')) || 0;
+                            const spend = Number(String(row['지출 금액 (USD)']).replace(/,/g, '')) || 0;
+                            const conversions = 0; // Meta Ads에서는 결과가 전환이 아닐 수 있음
+                            
+                            // 광고 세트 이름에서 타겟 추출
+                            const adSetName = row['광고 세트 이름'] || '';
+                            let target = '기타';
+                            if (adSetName.includes('인도')) target = '칸아카데미';
+                            else if (adSetName.includes('GPA')) target = 'GPA';
+                            else if (adSetName.includes('IB')) target = 'IB';
+                            else if (adSetName.includes('ACT')) target = 'ACT';
+                            else if (adSetName.includes('AP')) target = 'AP';
+                            else if (adSetName.includes('SAT')) target = 'SAT';
+                            else if (adSetName.includes('쿠몬')) target = '쿠몬';
+                            
+                            return {
+                                date: row['보고 시작'] || new Date().toISOString().split('T')[0],
+                                campaign: row['캠페인 이름'] || 'Unknown',
+                                target: target,
+                                adName: row['광고 이름'] || 'Unknown',
+                                impressions: impressions,
+                                clicks: clicks,
+                                conversions: conversions,
+                                spend: Math.round(spend * 1350), // USD to KRW 변환
+                                revenue: Math.round(conversions * 50000), // 가정: 전환당 5만원
+                                ctr: impressions > 0 ? (clicks / impressions * 100).toFixed(2) : 0,
+                                cvr: clicks > 0 ? (conversions / clicks * 100).toFixed(2) : 0,
+                                cpa: conversions > 0 ? Math.round((spend * 1350) / conversions) : 0,
+                                roi: spend > 0 ? (((conversions * 50000) - (spend * 1350)) / (spend * 1350) * 100).toFixed(1) : 0
+                            };
+                        } else {
+                            // 기존 형식
+                            const impressions = Number(row.impressions) || 0;
+                            const clicks = Number(row.clicks) || 0;
+                            const conversions = Number(row.conversions) || 0;
+                            const spend = Number(row.spend) || 0;
+                            const revenue = Number(row.revenue) || 0;
+                            
+                            return {
+                                date: row.date || new Date().toISOString().split('T')[0],
+                                campaign: row.campaign || 'Unknown',
+                                target: row.target || 'Unknown',
+                                impressions: impressions,
+                                clicks: clicks,
+                                conversions: conversions,
+                                spend: spend,
+                                revenue: revenue,
+                                ctr: impressions > 0 ? (clicks / impressions * 100).toFixed(2) : 0,
+                                cvr: clicks > 0 ? (conversions / clicks * 100).toFixed(2) : 0,
+                                cpa: conversions > 0 ? Math.round(spend / conversions) : 0,
+                                roi: spend > 0 ? ((revenue - spend) / spend * 100).toFixed(1) : 0
+                            };
+                        }
+                    });
+                    
+                    // Save to localStorage
+                    localStorage.setItem('adData', JSON.stringify(adData));
+                    
+                    // Show dashboard
+                    showDashboard();
+                    
+                } catch (error) {
+                    alert('파일을 읽는 중 오류가 발생했습니다: ' + error.message);
+                }
+            };
+            
+            if (file.type === 'text/csv') {
+                reader.readAsText(file);
+            } else {
+                reader.readAsBinaryString(file);
+            }
+        }
+
+        function clearData() {
+            if (confirm('정말로 모든 데이터를 삭제하시겠습니까?')) {
+                adData = [];
+                localStorage.removeItem('adData');
+                document.getElementById('empty-state').classList.remove('hidden');
+                document.getElementById('dashboard').classList.add('hidden');
+                document.getElementById('clear-btn').classList.add('hidden');
+                document.getElementById('export-btn').classList.add('hidden');
+            }
+        }
+
+        function showDashboard() {
+            document.getElementById('empty-state').classList.add('hidden');
+            document.getElementById('dashboard').classList.remove('hidden');
+            document.getElementById('clear-btn').classList.remove('hidden');
+            document.getElementById('export-btn').classList.remove('hidden');
+            
+            updateMetrics();
+            updateCharts();
+            updateTable();
+            generateRecommendations();
+            
+            // Re-initialize Lucide icons for new elements
+            lucide.createIcons();
+        }
+
+        function updateMetrics() {
+            const totalSpend = adData.reduce((sum, item) => sum + item.spend, 0);
+            const totalConversions = adData.reduce((sum, item) => sum + item.conversions, 0);
+            const totalClicks = adData.reduce((sum, item) => sum + item.clicks, 0);
+            const avgCPA = totalConversions > 0 ? totalSpend / totalConversions : 0;
+            const avgCVR = totalClicks > 0 ? (totalConversions / totalClicks * 100) : 0;
+            
+            // Update metrics
+            document.getElementById('total-spend').textContent = '₩' + totalSpend.toLocaleString();
+            document.getElementById('total-conversions').textContent = totalConversions.toLocaleString() + '명';
+            document.getElementById('avg-cpa').textContent = '₩' + Math.round(avgCPA).toLocaleString();
+            document.getElementById('avg-cvr').textContent = avgCVR.toFixed(1) + '%';
+            
+            // Update comparisons (가정: 업계 평균 CPA 12,000원, CVR 10%)
+            const industryAvgCPA = 12000;
+            const industryAvgCVR = 10;
+            const cpaComparison = ((industryAvgCPA - avgCPA) / industryAvgCPA * 100).toFixed(0);
+            const cvrComparison = ((avgCVR - industryAvgCVR) / industryAvgCVR * 100).toFixed(0);
+            
+            document.getElementById('cpa-comparison').textContent = (cpaComparison > 0 ? '-' : '+') + Math.abs(cpaComparison) + '%';
+            document.getElementById('cvr-comparison').textContent = (cvrComparison > 0 ? '+' : '') + cvrComparison + '%';
+            
+            // Update conversion rate vs target
+            const targetConversions = 180; // 목표 가입자수
+            const conversionRate = (totalConversions / targetConversions * 100 - 100).toFixed(0);
+            document.getElementById('conversion-rate').textContent = (conversionRate > 0 ? '+' : '') + conversionRate + '%';
+            
+            // Update header info
+            const dates = adData.map(d => new Date(d.date));
+            const minDate = new Date(Math.min(...dates));
+            const maxDate = new Date(Math.max(...dates));
+            document.getElementById('date-range').textContent = `${minDate.toLocaleDateString('ko-KR')} - ${maxDate.toLocaleDateString('ko-KR')}`;
+            document.getElementById('campaign-count').textContent = new Set(adData.map(d => d.campaign)).size + '개';
+            document.getElementById('platform').textContent = 'Meta Ads';
+        }
+
+        function updateCharts() {
+            // CPA Chart by Target
+            const targetData = {};
+            adData.forEach(item => {
+                if (!targetData[item.target]) {
+                    targetData[item.target] = { spend: 0, conversions: 0, clicks: 0 };
+                }
+                targetData[item.target].spend += item.spend;
+                targetData[item.target].conversions += item.conversions;
+                targetData[item.target].clicks += item.clicks;
+            });
+            
+            const targets = Object.keys(targetData).sort((a, b) => {
+                const cpaA = targetData[a].conversions > 0 ? targetData[a].spend / targetData[a].conversions : Infinity;
+                const cpaB = targetData[b].conversions > 0 ? targetData[b].spend / targetData[b].conversions : Infinity;
+                return cpaA - cpaB;
+            });
+            
+            const cpaData = targets.map(target => {
+                const data = targetData[target];
+                return data.conversions > 0 ? Math.round(data.spend / data.conversions) : 0;
+            });
+            
+            // Color coding for CPA
+            const colors = cpaData.map(cpa => {
+                if (cpa < 8000) return 'rgba(34, 197, 94, 0.8)'; // Green
+                if (cpa < 10000) return 'rgba(251, 191, 36, 0.8)'; // Yellow
+                if (cpa < 15000) return 'rgba(251, 146, 60, 0.8)'; // Orange
+                return 'rgba(239, 68, 68, 0.8)'; // Red
+            });
+            
+            const ctx1 = document.getElementById('cpa-chart').getContext('2d');
+            if (charts.cpa) charts.cpa.destroy();
+            charts.cpa = new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: targets,
+                    datasets: [{
+                        label: 'CPA (원)',
+                        data: cpaData,
+                        backgroundColor: colors,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '₩' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Pie Chart - Conversion Distribution
+            const conversionData = targets.map(target => targetData[target].conversions);
+            
+            const ctx2 = document.getElementById('pie-chart').getContext('2d');
+            if (charts.pie) charts.pie.destroy();
+            charts.pie = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: targets,
+                    datasets: [{
+                        data: conversionData,
+                        backgroundColor: [
+                            'rgba(99, 102, 241, 0.8)',
+                            'rgba(34, 197, 94, 0.8)',
+                            'rgba(251, 191, 36, 0.8)',
+                            'rgba(251, 146, 60, 0.8)',
+                            'rgba(239, 68, 68, 0.8)',
+                            'rgba(168, 85, 247, 0.8)',
+                            'rgba(59, 130, 246, 0.8)'
+                        ],
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateTable() {
+            // Aggregate data by target
+            const targetData = {};
+            adData.forEach(item => {
+                if (!targetData[item.target]) {
+                    targetData[item.target] = {
+                        target: item.target,
+                        spend: 0,
+                        conversions: 0,
+                        clicks: 0,
+                        impressions: 0
+                    };
+                }
+                targetData[item.target].spend += item.spend;
+                targetData[item.target].conversions += item.conversions;
+                targetData[item.target].clicks += item.clicks;
+                targetData[item.target].impressions += item.impressions;
+            });
+            
+            // Convert to array and calculate metrics
+            const tableData = Object.values(targetData).map(data => ({
+                ...data,
+                cpa: data.conversions > 0 ? Math.round(data.spend / data.conversions) : 0,
+                cvr: data.clicks > 0 ? (data.conversions / data.clicks * 100).toFixed(1) : 0
+            }));
+            
+            // Sort by CPA
+            tableData.sort((a, b) => {
+                const cpaA = a.conversions > 0 ? a.cpa : Infinity;
+                const cpaB = b.conversions > 0 ? b.cpa : Infinity;
+                return cpaA - cpaB;
+            });
+            
+            const tbody = document.getElementById('campaign-table-body');
+            tbody.innerHTML = tableData.map((row, index) => {
+                const status = row.cpa < 10000 ? 'good' : row.cpa < 15000 ? 'average' : 'poor';
+                const statusBadge = status === 'good' ? '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">🟢 고효율</span>' :
+                                   status === 'average' ? '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">🟡 보통</span>' :
+                                   '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">🔴 개선필요</span>';
+                
+                return `
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${index + 1}위</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${row.target}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900">₩${row.spend.toLocaleString()}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900">${row.conversions}명</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-medium text-gray-900">₩${row.cpa.toLocaleString()}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900">${row.cvr}%</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center">${statusBadge}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function generateRecommendations() {
+            const recommendations = [
+                {
+                    icon: 'trending-up',
+                    color: 'green',
+                    title: '예산 증액 (30%)',
+                    targets: '칸아카데미, 쿠몬',
+                    impact: 'CPA -59,965원 → 8,856원',
+                    description: '고효율 타겟 예산 확대'
+                },
+                {
+                    icon: 'trending-down',
+                    color: 'yellow',
+                    title: '예산 감액 (20%)',
+                    targets: 'IB, GPA',
+                    impact: '월 가입자 +23명 증가',
+                    description: '저효율 타겟 예산 조정'
+                },
+                {
+                    icon: 'zap',
+                    color: 'purple',
+                    title: '즉각 실행',
+                    targets: '119,963원 절약',
+                    impact: 'ROI +29% 개선',
+                    description: '예상 성과 개선'
+                }
+            ];
+            
+            const container = document.getElementById('recommendations');
+            container.innerHTML = recommendations.map(rec => `
+                <div class="bg-white rounded-lg p-4 border border-gray-200">
+                    <div class="flex items-start gap-3">
+                        <div class="p-2 bg-${rec.color}-100 rounded-lg">
+                            <i data-lucide="${rec.icon}" class="w-4 h-4 text-${rec.color}-700"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-gray-900">${rec.title}</h4>
+                            <p class="text-sm text-gray-600 mt-1">${rec.targets}</p>
+                            <p class="text-xs text-gray-500 mt-2">${rec.description}</p>
+                            <p class="text-sm font-semibold text-${rec.color}-600 mt-2">${rec.impact}</p>
+                        </div>
+                    </div>
                 </div>
-                <div class="bg-white rounded-lg p-4">
-                    <div class="text-red-600 font-semibold mb-2">⚠️ 예산 감액 (20%)</div>
-                    <ul class="text-sm text-gray-600 space-y-1">
-                        <li>• GPA: -59,965원</li>
-                        <li>• IB: -59,998원</li>
-                        <li class="font-semibold text-red-600">절약: 119,963원</li>
-                    </ul>
-                </div>
-                <div class="bg-white rounded-lg p-4">
-                    <div class="text-blue-600 font-semibold mb-2">📈 예상 개선 효과</div>
-                    <ul class="text-sm text-gray-600 space-y-1">
-                        <li>• CPA: 10,143원 → 8,856원</li>
-                        <li>• 월 가입자: 207명 → 267명</li>
-                        <li class="font-semibold text-blue-600">ROI: +29% 개선</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+            `).join('');
+        }
 
-    <script src="dashboard.js"></script>
+        function exportReport() {
+            // Simple CSV export
+            const headers = ['타겟', '지출(원)', '가입자', 'CPA(원)', 'CVR(%)'];
+            const targetData = {};
+            
+            adData.forEach(item => {
+                if (!targetData[item.target]) {
+                    targetData[item.target] = {
+                        target: item.target,
+                        spend: 0,
+                        conversions: 0,
+                        clicks: 0
+                    };
+                }
+                targetData[item.target].spend += item.spend;
+                targetData[item.target].conversions += item.conversions;
+                targetData[item.target].clicks += item.clicks;
+            });
+            
+            const rows = Object.values(targetData).map(data => [
+                data.target,
+                data.spend,
+                data.conversions,
+                data.conversions > 0 ? Math.round(data.spend / data.conversions) : 0,
+                data.clicks > 0 ? (data.conversions / data.clicks * 100).toFixed(1) : 0
+            ]);
+            
+            let csvContent = headers.join(',') + '\n';
+            rows.forEach(row => {
+                csvContent += row.join(',') + '\n';
+            });
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `mathkong_report_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+        }
+    </script>
 </body>
 </html>
